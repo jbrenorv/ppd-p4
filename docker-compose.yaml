@@ -1,0 +1,24 @@
+
+services:
+
+  activemq:
+    image: apache/activemq-classic
+    # expose:
+    #   - "61616"
+    #   - "5672"
+    #   - "61613"
+    #   - "1883"
+    #   - "61614"
+    #   - "8161"
+    #   - "1099"
+    ports:
+      - "8161:8161"
+      # - "61616:61616"
+      - "5672:5672"
+      # - "61613:61613"
+      # - "1883:1883"
+      # - "61614:61614"
+      # - "1099:1099"
+    command: activemq console
+    stdin_open: true
+    tty: true
