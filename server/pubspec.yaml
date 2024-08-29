@@ -9,6 +9,7 @@ environment:
 # Add regular dependencies here.
 dependencies:
   dart_amqp: ^0.3.1
+  stomp_dart_client: ^2.0.0
 
 dev_dependencies:
   lints: ^3.0.0
