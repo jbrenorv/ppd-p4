@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TestIde:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/TestIde_jar</output-path>
+    <root id="archive" name="TestIde.jar">
+      <element id="module-output" name="TestIde" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../examples/lib/activemq-all-5.18.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../examples/lib/log4j-slf4j2-impl-2.23.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../examples/lib/log4j-core-2.23.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../examples/lib/log4j-api-2.23.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
