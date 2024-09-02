@@ -29,3 +29,74 @@ doc/api/
 *.exe
 
 .vscode
+
+### IntelliJ IDEA ###
+server/out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+server/.apt_generated
+server/.classpath
+server/.factorypath
+server/.project
+server/.settings
+server/.springBeans
+server/.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+server/nbproject/private/
+server/nbbuild/
+server/dist/
+server/nbdist/
+server/.nb-gradle/
+
+### Mac OS ###
+.DS_Store
+
+# Miscellaneous
+client/*.class
+client/*.log
+client/*.pyc
+client/*.swp
+client/.DS_Store
+client/.atom/
+client/.buildlog/
+client/.history
+client/.svn/
+client/migrate_working_dir/
+
+# IntelliJ related
+client/*.iml
+client/*.ipr
+client/*.iws
+client/.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+client/**/doc/api/
+client/**/ios/Flutter/.last_build_id
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/.pub-cache/
+client/.pub/
+client/build/
+
+# Symbolication related
+clientapp.*.symbols
+
+# Obfuscation related
+clientapp.*.map.json
+
+# Android Studio will place build artifacts here
+client/android/app/debug
+client/android/app/profile
+client/android/app/release
