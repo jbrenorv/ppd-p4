@@ -30,8 +30,8 @@ class ClientsListWidget extends StatelessWidget {
         itemBuilder: (_, index) {
           return ListTile(
             selected: index == selectedIndex,
-            selectedTileColor: Theme.of(context).colorScheme.secondary,
-            selectedColor: Theme.of(context).colorScheme.onSecondary,
+            selectedTileColor: Theme.of(context).colorScheme.primary,
+            selectedColor: Theme.of(context).colorScheme.onPrimary,
             onTap: () => onChangeSelectedClientIndex(index),
             title: Text(clients[index].name),
           );
