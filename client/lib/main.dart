@@ -1,6 +1,4 @@
-import 'package:client/pages/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/create_client_page.dart';
 
@@ -26,21 +24,7 @@ class ClientApp extends StatelessWidget {
           elevation: 0.0,
         )
       ),
-      home: FutureBuilder(
-        future: _getClientName(),
-        builder: (context, snapshot) {
-          final clientName = snapshot.data;
-          if (clientName == null) {
-            return const CreateClientPage();
-          }
-          return HomePage(clientName: clientName);
-        },
-      ),
+      home: const CreateClientPage(),
     );
-  }
-
-  Future<String?> _getClientName() async {
-    final preferences = await SharedPreferences.getInstance();
-    return preferences.getString('client_name');
   }
 }

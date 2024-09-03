@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 class ClientModel {
-  ClientModel({
-    required this.name,
-    required this.id,
-  });
+  ClientModel({required this.name, String? id}) {
+    this.id = id ?? '$name${DateTime.now().millisecondsSinceEpoch}';
+  }
 
   final String name;
-  final String id;
+  late final String id;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{

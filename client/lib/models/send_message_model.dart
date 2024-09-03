@@ -5,7 +5,7 @@ import 'message_model.dart';
 
 class SendMessageModel extends MessageModel {
   SendMessageModel({
-    required this.messageContent,
+    required this.message,
     required this.sender,
     required this.recipient,
   });
@@ -13,14 +13,14 @@ class SendMessageModel extends MessageModel {
   @override
   MessageType get messageType => MessageType.sendMessage;
 
-  final String messageContent;
+  final String message;
   final ClientModel sender;
   final ClientModel recipient;
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'messageType': MessageType.values.indexOf(messageType),
-      'messageContent': messageContent,
+      'messageContent': message,
       'sender': sender.toMap(),
       'recipient': recipient.toMap(),
     };
@@ -28,7 +28,7 @@ class SendMessageModel extends MessageModel {
 
   factory SendMessageModel.fromMap(Map<String, dynamic> map) {
     return SendMessageModel(
-      messageContent: map['messageContent'] as String,
+      message: map['messageContent'] as String,
       sender: ClientModel.fromMap(map['sender'] as Map<String,dynamic>),
       recipient: ClientModel.fromMap(map['recipient'] as Map<String,dynamic>),
     );
@@ -41,7 +41,7 @@ class SendMessageModel extends MessageModel {
 
   @override
   String toString() {
-    return 'SendMessageModel(messageType: $messageType, messageContent: $messageContent, sender: $sender, recipient: $recipient)';
+    return 'SendMessageModel(messageType: $messageType, messageContent: $message, sender: $sender, recipient: $recipient)';
   }
 
   @override
@@ -50,7 +50,7 @@ class SendMessageModel extends MessageModel {
   
     return 
       other.messageType == messageType &&
-      other.messageContent == messageContent &&
+      other.message == message &&
       other.sender == sender &&
       other.recipient == recipient;
   }
@@ -58,7 +58,7 @@ class SendMessageModel extends MessageModel {
   @override
   int get hashCode {
     return messageType.hashCode ^
-      messageContent.hashCode ^
+      message.hashCode ^
       sender.hashCode ^
       recipient.hashCode;
   }

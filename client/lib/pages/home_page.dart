@@ -1,28 +1,32 @@
-import 'package:client/models/client_model.dart';
-import 'package:client/widgets/chat_widget.dart';
-import 'package:client/widgets/clients_list_widget.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.clientName});
+import '../models/client_model.dart';
+import '../models/send_message_model.dart';
+import '../services/client_service.dart';
+import '../widgets/chat_widget.dart';
+import '../widgets/clients_list_widget.dart';
 
-  final String clientName;
+class HomePage extends StatefulWidget {
+  const HomePage({super.key, required this.client});
+
+  final ClientModel client;
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+  late final ClientService _service;
+  final _chats = <ClientModel, List<SendMessageModel>>{};
+  ClientModel? _selectedClient;
 
-  final _clients = <ClientModel>[
-    ClientModel(
-      name: 'joao',
-    ),
-    ClientModel(
-      name: 'maressa',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _service = ClientService.instance;
+    _service.init(widget.client);
+    _service.onMessage.listen(_onMessage);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +35,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             child: ClientsListWidget(
-              selectedIndex: _selectedIndex,
-              onChangeSelectedClientIndex: (index) {
+              selectedClient: _selectedClient,
+              onChangeSelectedClient: (client) {
                 setState(() {
-                  _selectedIndex = index;
+                  _selectedClient = client;
                 });
               },
-              clients: _clients,
+              clients: _chats.keys.toList(),
             ),
           ),
           const VerticalDivider(
@@ -46,14 +50,27 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             flex: 2,
             child: ChatWidget(
-              client: _clients[_selectedIndex],
-              sendMessage: (client, message) {
-
-              },
+              client: _selectedClient,
+              messages: _selectedClient != null ? _chats[_selectedClient!] ?? [] : [],
+              sendMessage: _sendMessage,
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _onMessage(SendMessageModel message) {
+    if (_chats[message.recipient] == null) {
+      _chats[message.recipient] = [message];
+    } else {
+      _chats[message.recipient]!.add(message);
+    }
+    setState(() {});
+  }
+
+  void _sendMessage(ClientModel recipient, String message) {
+    final messageModel = _service.sendMessage(recipient, message);
+    _onMessage(messageModel);
   }
 }

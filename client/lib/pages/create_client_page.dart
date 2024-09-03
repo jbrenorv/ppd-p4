@@ -1,3 +1,4 @@
+import 'package:client/models/client_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,9 +47,11 @@ class _CreateClientPageState extends State<CreateClientPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => HomePage(
-                        clientName: clientName,
+                        client: ClientModel(
+                          name: clientName,
+                        ),
                       ),
-                    )
+                    ),
                   );
                 },
                 child: const Text('Entrar'),

@@ -5,14 +5,14 @@ import '../models/client_model.dart';
 class ClientsListWidget extends StatelessWidget {
   const ClientsListWidget({
     super.key,
-    required this.selectedIndex,
+    required this.selectedClient,
     required this.clients,
-    required this.onChangeSelectedClientIndex,
+    required this.onChangeSelectedClient,
   });
 
-  final int selectedIndex;
+  final ClientModel? selectedClient;
   final List<ClientModel> clients;
-  final ValueChanged<int> onChangeSelectedClientIndex;
+  final ValueChanged<ClientModel> onChangeSelectedClient;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +29,10 @@ class ClientsListWidget extends StatelessWidget {
         },
         itemBuilder: (_, index) {
           return ListTile(
-            selected: index == selectedIndex,
+            selected: clients[index] == selectedClient,
             selectedTileColor: Theme.of(context).colorScheme.primary,
             selectedColor: Theme.of(context).colorScheme.onPrimary,
-            onTap: () => onChangeSelectedClientIndex(index),
+            onTap: () => onChangeSelectedClient(clients[index]),
             title: Text(clients[index].name),
           );
         },
