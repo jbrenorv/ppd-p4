@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../models/client_list_message_model.dart';
 import '../models/client_model.dart';
+import '../models/message_model.dart';
 import '../models/send_message_model.dart';
 import '../services/client_service.dart';
 import '../widgets/chat_widget.dart';
@@ -17,6 +21,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final ClientService _service;
+  late final StreamSubscription _streamSubscription;
   final _chats = <ClientModel, List<SendMessageModel>>{};
   ClientModel? _selectedClient;
 
@@ -25,7 +30,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _service = ClientService.instance;
     _service.init(widget.client);
-    _service.onMessage.listen(_onMessage);
+    _streamSubscription = _service.onMessage.listen(_onMessage);
+  }
+
+  @override
+  void dispose() {
+    _streamSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -60,11 +71,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _onMessage(SendMessageModel message) {
-    if (_chats[message.recipient] == null) {
-      _chats[message.recipient] = [message];
-    } else {
-      _chats[message.recipient]!.add(message);
+  void _onMessage(MessageModel message) {
+    if (message is ClientListMessageModel) {
+      for (var client in message.clients) {
+        if (_chats[client] == null) {
+          _chats[client] = [];
+        }
+      }
+    } else if (message is SendMessageModel) {
+      if (_chats[message.recipient] == null) {
+        _chats[message.recipient] = [message];
+      } else {
+        _chats[message.recipient]!.add(message);
+      }
     }
     setState(() {});
   }

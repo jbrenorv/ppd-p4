@@ -1,4 +1,4 @@
-enum MessageType { createClient, sendMessage }
+enum MessageType { createClient, sendMessage, clientList }
 
 abstract class MessageModel {
   MessageType get messageType;

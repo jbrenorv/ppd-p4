@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:client/models/client_list_message_model.dart';
+
 import '../models/client_model.dart';
 import '../models/create_client_message_model.dart';
 import '../models/message_model.dart';
@@ -17,8 +19,8 @@ class ClientService {
   Socket? _socket;
   ClientModel? _client;
 
-  final _streamController = StreamController<SendMessageModel>();
-  Stream<SendMessageModel> get onMessage => _streamController.stream;
+  final _streamController = StreamController<MessageModel>();
+  Stream<MessageModel> get onMessage => _streamController.stream;
 
   Future<bool> init(ClientModel client) async {
     try {
@@ -61,7 +63,12 @@ class ClientService {
 
   void _receiveMessageFromRemoteServer(Uint8List rawData) {
     final json = utf8.decode(rawData);
-    final message = SendMessageModel.fromJson(json);
-    _streamController.add(message);
+    final map = jsonDecode(json);
+
+    if (MessageType.values[map['messageType'] as int] == MessageType.clientList) {
+      _streamController.add(ClientListMessageModel.fromMap(map));
+    } else {
+      _streamController.add(SendMessageModel.fromMap(map));
+    }
   }
 }

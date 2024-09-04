@@ -1,6 +1,7 @@
 package models;
 
 public enum ClientMessageType {
-    identificationMessage,
-    messageToOtherClient,
+    createClient,
+    sendMessage,
+    clientList,
 }
