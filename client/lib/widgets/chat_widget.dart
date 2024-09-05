@@ -4,24 +4,27 @@ import 'package:flutter/material.dart';
 
 import '../models/client_model.dart';
 import '../models/send_message_model.dart';
-import '../services/client_service.dart';
 
 class ChatWidget extends StatelessWidget {
   const ChatWidget({
     super.key,
+    required this.connected,
     required this.client,
+    required this.recipient,
     required this.messages,
     required this.sendMessage,
   });
 
-  final ClientModel? client;
+  final bool connected;
+  final ClientModel client;
+  final ClientModel? recipient;
   final List<SendMessageModel> messages;
   final void Function(ClientModel, String) sendMessage;
 
   @override
   Widget build(BuildContext context) {
 
-    if (client == null) {
+    if (recipient == null) {
       return const Center(
         child: Text(
           'Selecione um contato no menu ao lado para iniciar uma conversa',
@@ -38,7 +41,7 @@ class ChatWidget extends StatelessWidget {
             text: 'Conversando com ',
             children: [
               TextSpan(
-                text: client!.name,
+                text: recipient!.name,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
@@ -75,6 +78,7 @@ class ChatWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    enabled: connected,
                     controller: inputController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -87,7 +91,7 @@ class ChatWidget extends StatelessWidget {
                   onPressed: () {
                     final message = inputController.text;
                     if (message.isEmpty) return;
-                    sendMessage(client!, message);
+                    sendMessage(recipient!, message);
                   },
                   child: const Text('Enviar'),
                 ),
@@ -102,12 +106,12 @@ class ChatWidget extends StatelessWidget {
   Widget _buildMessageWidget(SendMessageModel message) {
     var alignment = Alignment.centerLeft;
     var padding = const EdgeInsets.fromLTRB(0.0, 4.0, 32.0, 4.0);
-    var color = const Color(0xFFFFCCCC);
+    var color = const Color.fromARGB(255, 93, 40, 40);
 
-    if (ClientService.instance.isMine(message)) {
+    if (message.sender == client) {
       alignment = Alignment.centerRight;
       padding = const EdgeInsets.fromLTRB(32.0, 4.0, 0.0, 4.0);
-      color = const Color(0xFFCCCCFF);
+      color = const Color.fromARGB(255, 98, 48, 4);
     }
 
     return Align(
@@ -117,7 +121,7 @@ class ChatWidget extends StatelessWidget {
         child: Card(
           color: color,
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               message.message,
               style: const TextStyle(

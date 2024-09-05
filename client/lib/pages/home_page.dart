@@ -23,13 +23,14 @@ class _HomePageState extends State<HomePage> {
   late final ClientService _service;
   late final StreamSubscription _streamSubscription;
   final _chats = <ClientModel, List<SendMessageModel>>{};
+
   ClientModel? _selectedClient;
+  bool _connected = false;
 
   @override
   void initState() {
     super.initState();
     _service = ClientService.instance;
-    _service.init(widget.client);
     _streamSubscription = _service.onMessage.listen(_onMessage);
   }
 
@@ -46,6 +47,9 @@ class _HomePageState extends State<HomePage> {
         children: [
           Expanded(
             child: ClientsListWidget(
+              connected: _connected,
+              client: widget.client,
+              onChangeConected: _setConnectionSatatus,
               selectedClient: _selectedClient,
               onChangeSelectedClient: (client) {
                 setState(() {
@@ -61,9 +65,11 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             flex: 2,
             child: ChatWidget(
-              client: _selectedClient,
+              client: widget.client,
+              recipient: _selectedClient,
               messages: _selectedClient != null ? _chats[_selectedClient!] ?? [] : [],
               sendMessage: _sendMessage,
+              connected: _connected,
             ),
           ),
         ],
@@ -71,18 +77,33 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _setConnectionSatatus(bool connected) {
+    _connected = connected;
+    if (_connected) {
+      _service.init(widget.client);
+    } else {
+      _service.disconnect();
+    }
+    setState(() {});
+  }
+
   void _onMessage(MessageModel message) {
     if (message is ClientListMessageModel) {
       for (var client in message.clients) {
+        if (client == widget.client) continue;
         if (_chats[client] == null) {
           _chats[client] = [];
         }
       }
     } else if (message is SendMessageModel) {
-      if (_chats[message.recipient] == null) {
-        _chats[message.recipient] = [message];
-      } else {
+      if (message.sender == widget.client) {
         _chats[message.recipient]!.add(message);
+      } else {
+        if (_chats[message.sender] == null) {
+          _chats[message.sender] = [message];
+        } else {
+          _chats[message.sender]!.add(message);
+        }
       }
     }
     setState(() {});

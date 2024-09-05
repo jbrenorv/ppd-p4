@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import javax.jms.*;
@@ -19,8 +20,8 @@ public class ClientThread extends Thread {
 
     private final String brokerUrl = ActiveMQConnection.DEFAULT_BROKER_URL;
 
-    private final DataOutputStream outputStream;
-    private final DataInputStream inputStream;
+    private final PrintStream printStream;
+    private final BufferedReader reader;
 
     private Client ownerClient = null;
 
@@ -29,8 +30,8 @@ public class ClientThread extends Thread {
     private Thread consumerThread = null;
 
     public ClientThread(Socket socket) throws IOException {
-        this.outputStream = new DataOutputStream(socket.getOutputStream());
-        this.inputStream = new DataInputStream(socket.getInputStream());
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+        this.printStream = new PrintStream(socket.getOutputStream(), true, StandardCharsets.UTF_8);
     }
 
     public void run() {
@@ -38,13 +39,7 @@ public class ClientThread extends Thread {
         logger.info("Client thread started!");
 
         // Notifies the client that the channel is available
-        try {
-            outputStream.writeUTF("available");
-            outputStream.flush();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            return;
-        }
+        printStream.println("available");
 
         logger.info("Waiting for client messages...");
 
@@ -52,13 +47,13 @@ public class ClientThread extends Thread {
             try {
 
                 // Wait for messages
-                String message = inputStream.readUTF();
+                String message = reader.readLine();
 
                 logger.info("Message received from socket: {}", message);
 
                 handleClientMessage(message);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage());
                 break;
             }
@@ -140,17 +135,17 @@ public class ClientThread extends Thread {
                         TextMessage textMessage = (TextMessage)message;
                         String jsonsString = textMessage.getText();
 
-                        logger.info("New message from broker, forwarding to {}", ownerClient.getName());
+                        logger.info("New message from broker: {}", jsonsString);
+                        logger.info("Forwarding to {}", ownerClient.getName());
 
-                        outputStream.writeUTF(jsonsString);
-                        outputStream.flush();
+                        printStream.println(jsonsString);
                     }
                 }
 
                 consumer.close();
                 session.close();
 
-            } catch (JMSException | IOException e) {
+            } catch (JMSException e) {
                 logger.error(e.getMessage());
             }
         });
@@ -187,12 +182,12 @@ public class ClientThread extends Thread {
         }
     }
 
-    private void sendMessage(Client client, String jsonString) {
+    private void sendMessage(Client recipient, String jsonString) {
         try {
-            logger.info("Sending message from {} to queue of {}", client.getName(), client.getName());
+            logger.info("Sending message from {} to queue of {}", ownerClient.getName(), recipient.getName());
 
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(client.getQueue());
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            Destination destination = session.createQueue(recipient.getQueue());
             MessageProducer producer = session.createProducer(destination);
 
             TextMessage textMessage = session.createTextMessage(jsonString);

@@ -5,8 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:client/models/client_list_message_model.dart';
-
+import '../models/client_list_message_model.dart';
 import '../models/client_model.dart';
 import '../models/create_client_message_model.dart';
 import '../models/message_model.dart';
@@ -32,6 +31,8 @@ class ClientService {
       _socket!.listen(
         _receiveMessageFromRemoteServer,
         cancelOnError: true,
+        onDone: () => print('Socket connection done!'),
+        onError: (e, s) => print('error=$e stack-trace=$s'),
       );
       return true;
     } catch (e) {
@@ -63,36 +64,38 @@ class ClientService {
     print('Message received: $json');
     
     if (json.endsWith('available')) {
-      //         channel-available
-
-      Future.delayed(const Duration(seconds: 3), () {
-
       _sendMessageToRemoteServer(CreateClientMessageModel(client: _client!));
-      });
-
-      print('heree');
       return;
     }
-    else {
-      print("diferente $json");
-    }
 
-    final map = jsonDecode(json);
+    for (var line in json.split('\n')) {
+      try {
+        final map = jsonDecode(line);
 
-    if (MessageType.values[map['messageType'] as int] == MessageType.clientList) {
-      _streamController.add(ClientListMessageModel.fromMap(map));
-    } else {
-      _streamController.add(SendMessageModel.fromMap(map));
+        if (MessageType.values[map['messageType'] as int] == MessageType.clientList) {
+          _streamController.add(ClientListMessageModel.fromMap(map));
+        } else {
+          _streamController.add(SendMessageModel.fromMap(map));
+        }
+      } catch (e) {
+        print('Deserialization error: $e');
+      }
     }
   }
 
   Future<void> _sendMessageToRemoteServer(MessageModel message) async {
-    await _socket!.flush();
 
     final json = message.toJson();
 
     print('Message sent: $json');
 
-    _socket!.write(json);
+    await _socket!.flush();
+    _socket!.writeln(json);
+  }
+
+  void disconnect() {
+    _socket?.close();
+    _socket = null;
+    _client = null;
   }
 }

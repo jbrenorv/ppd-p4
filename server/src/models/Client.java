@@ -33,4 +33,15 @@ public class Client {
 
         return jsonObjectBuilder.build();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Client)) return false;
+        return this.id.equals(((Client) obj).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    }
 }
