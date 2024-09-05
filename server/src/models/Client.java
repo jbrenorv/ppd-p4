@@ -1,6 +1,8 @@
 package models;
 
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 public class Client {
     private final String id;
@@ -21,5 +23,14 @@ public class Client {
 
     public String getQueue() {
         return this.id;
+    }
+
+    public JsonObject toJsonObject() {
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+
+        jsonObjectBuilder.add("id", this.id);
+        jsonObjectBuilder.add("name", this.name);
+
+        return jsonObjectBuilder.build();
     }
 }

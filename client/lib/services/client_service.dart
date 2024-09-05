@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -31,7 +33,6 @@ class ClientService {
         _receiveMessageFromRemoteServer,
         cancelOnError: true,
       );
-      _sendMessageToRemoteServer(CreateClientMessageModel(client: client));
       return true;
     } catch (e) {
       print(e);
@@ -56,13 +57,26 @@ class ClientService {
     return messageModel;
   }
 
-  Future<void> _sendMessageToRemoteServer(MessageModel message) async {
-    await _socket!.flush();
-    _socket!.write(message.toJson());
-  }
-
   void _receiveMessageFromRemoteServer(Uint8List rawData) {
-    final json = utf8.decode(rawData);
+    final json = utf8.decode(rawData).trim();
+
+    print('Message received: $json');
+    
+    if (json.endsWith('available')) {
+      //         channel-available
+
+      Future.delayed(const Duration(seconds: 3), () {
+
+      _sendMessageToRemoteServer(CreateClientMessageModel(client: _client!));
+      });
+
+      print('heree');
+      return;
+    }
+    else {
+      print("diferente $json");
+    }
+
     final map = jsonDecode(json);
 
     if (MessageType.values[map['messageType'] as int] == MessageType.clientList) {
@@ -70,5 +84,15 @@ class ClientService {
     } else {
       _streamController.add(SendMessageModel.fromMap(map));
     }
+  }
+
+  Future<void> _sendMessageToRemoteServer(MessageModel message) async {
+    await _socket!.flush();
+
+    final json = message.toJson();
+
+    print('Message sent: $json');
+
+    _socket!.write(json);
   }
 }
